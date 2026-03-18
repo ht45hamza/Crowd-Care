@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/* =============================================
+   Vertical Stepper Overrides (react-form-stepper)
+   ============================================= */
+
+/* Main container: full-height vertical column */
+.stepper-vertical {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  height: 100% !important;
+}
+
+/* Each step wrapper: flex column so connector can grow */
+.stepper-vertical > div[id="RFS-StepContainer"] {
+  flex: 1 !important;
+  padding: 0 !important;
+  width: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+}
+
+/* First step: no connector, don't stretch — just sit at the top */
+.stepper-vertical > div[id="RFS-StepContainer"]:first-child {
+  flex: 0 0 auto !important;
+  justify-content: flex-start !important;
+}
+
+/* Step circle + label: arrange side by side (circle left, label right) */
+.stepper-vertical div[id="RFS-StepMain"] {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  flex-shrink: 0 !important;
+}
+
+/* Connector container: vertical, grows to fill space between steps */
+.stepper-vertical div[id="RFS-ConnectorContainer"] {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  width: 2rem;
+  margin: 0;
+  flex: 1 !important;
+}
+
+/* Connector line: vertical line that fills the connector container */
+.stepper-vertical span[id="RFS-Connector"] {
+  border-top: none !important;
+  border-left-style: solid !important;
+  border-left-width: 2px !important;
+  height: 100% !important;
+  min-height: 50px;
+  display: block !important;
+}
+
+/* Label container: auto width instead of 100% */
+.stepper-vertical div[id="RFS-LabelContainer"] {
+  width: auto !important;
+}
+
+/* Label text: align left instead of center, no top margin */
+.stepper-vertical span[id="RFS-Label"] {
+  text-align: left !important;
+  margin-top: 0 !important;
+  white-space: nowrap;
+}
+
+/* Fix: Tailwind v4 reset overrides inactive step button backgrounds.
+   Active/completed steps survive because their JSS class selectors have
+   higher specificity, but the base (inactive/disabled) style does not. */
+.stepper-vertical button[id="RFS-StepButton"] {
+  background-color: #9ca3af !important;
+  min-width: 2rem;
+  min-height: 2rem;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Let active and completed states override the gray fallback */
+.stepper-vertical button[id="RFS-StepButton"].active {
+  background-color: #1A3F1E !important;
+}
+
+.stepper-vertical button[id="RFS-StepButton"].completed {
+  background-color: #1A3F1E !important;
+}
+
+
+/* Standard HTML Interactive Elements */
+button,
+a,
+select,
+label,
+summary,
+area,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+[type="checkbox"],
+[type="radio"],
+[type="file"],
+[tabindex] {
+  cursor: pointer;
+}
+
+/* Custom Interactive Classes */
+.cursor-pointer,
+.clickable,
+.btn,
+.link {
+  cursor: pointer;
+}
+
+
+/*  the mobile menu overlay is a common clickable div */
+.fixed.inset-0.bg-black\/50 {
+  cursor: pointer;
+}
+
+/* Any element with an explicit onClick-like class or data attribute */
+[data-clickable="true"] {
+  cursor: pointer;
+}
+
+/* Disabled State Overrides */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"],
+.disabled,
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
+
+/* Transition for a smoother feel on clickable elements */
+button, a, .cursor-pointer {
+  transition: cursor 0.2s ease;
+}
