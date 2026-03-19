@@ -102,7 +102,12 @@ export default function ResetPassword() {
 
         {/* Error */}
         {error && (
-          <p className="w-full text-red-500 text-sm mb-4 text-left">{error}</p>
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-lg animate-in fade-in duration-300 mb-6 w-full max-w-[400px]">
+             <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+             <p className="text-red-600 text-sm font-medium leading-none">
+                 {error}
+             </p>
+          </div>
         )}
 
         {/* Form fields */}
@@ -119,7 +124,10 @@ export default function ResetPassword() {
                 type={showPassword ? "text" : "password"}
                 placeholder="New Password"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setError("");
+                }}
                 className="border-gray-200 focus-visible:ring-1 focus-visible:ring-orange-500 h-14 sm:h-16 rounded-lg px-4 pr-12 bg-white text-black placeholder:text-gray-400 font-medium text-[16px]"
               />
               <button
@@ -140,7 +148,10 @@ export default function ResetPassword() {
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm Password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setError("");
+                }}
                 className="border-gray-200 focus-visible:ring-1 focus-visible:ring-orange-500 h-14 sm:h-16 rounded-lg px-4 pr-12 bg-white text-black placeholder:text-gray-400 font-medium text-[16px]"
               />
               <button

@@ -31,6 +31,15 @@ export default function SignupScreen() {
   const [signup, { isLoading, isSuccess, isError, data, error: apiError }] =
     useSignupMutation();
 
+  const [apiErrorState, setApiErrorState] = useState("");
+
+  // Sync mutation error to local state
+  useEffect(() => {
+    if (apiError) {
+      setApiErrorState(apiError?.data?.message || apiError?.error || "Signup failed");
+    }
+  }, [apiError]);
+
   // ✅ Console logs for API status
   useEffect(() => {
     if (isLoading) {
@@ -70,9 +79,14 @@ export default function SignupScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleInputChange = (setter) => (e) => {
+    setter(e.target.value);
+    setApiErrorState(""); // Clear API error on change
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setApiErrorState(""); // Clear previous errors
     console.log("📩 Submit Clicked");
 
     // NOTE: validateForm sets errors async. For logging, log after validateForm returns.
@@ -101,7 +115,7 @@ export default function SignupScreen() {
     }
   };
   const GotoLogin = () => {
-    Navigate("/login");
+    Navigate("/");
   }
 
   return (
@@ -145,7 +159,7 @@ export default function SignupScreen() {
                 placeholder="First Name"
                 className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 rounded-lg px-4"
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                onChange={handleInputChange(setFirstName)}
                 style={{ backgroundColor: Colors.inputBg }}
               />
               {errors.firstName && (
@@ -161,7 +175,7 @@ export default function SignupScreen() {
                 placeholder="Second Name"
                 className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 rounded-lg px-4"
                 value={secondName}
-                onChange={(e) => setSecondName(e.target.value)}
+                onChange={handleInputChange(setSecondName)}
                 style={{ backgroundColor: Colors.inputBg }}
               />
               {errors.secondName && (
@@ -178,7 +192,7 @@ export default function SignupScreen() {
               type="email"
               placeholder="Enter Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleInputChange(setEmail)}
               className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 rounded-lg px-4"
               style={{ backgroundColor: Colors.inputBg }}
             />
@@ -194,7 +208,7 @@ export default function SignupScreen() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handleInputChange(setPassword)}
                 className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 rounded-lg px-4 pr-12"
                 style={{ backgroundColor: Colors.inputBg }}
               />
@@ -222,7 +236,7 @@ export default function SignupScreen() {
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm Password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={handleInputChange(setConfirmPassword)}
                 className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 rounded-lg px-4 pr-12"
                 style={{ backgroundColor: Colors.inputBg }}
               />
@@ -246,17 +260,20 @@ export default function SignupScreen() {
           </div>
 
           {/* API Error UI */}
-          {apiError && (
-            <p className="text-red-600 text-sm">
-              {apiError?.data?.message || apiError?.error || "Signup failed"}
-            </p>
+          {apiErrorState && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-lg animate-in fade-in duration-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+              <p className="text-red-600 text-sm font-medium leading-none">
+                {apiErrorState}
+              </p>
+            </div>
           )}
 
           {/* Submit Button */}
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 mt-6 sm:mt-8 text-white rounded-lg text-lg font-medium shadow-none transition-colors"
+            className="w-full h-14 mt-4 text-white rounded-lg text-lg font-medium shadow-none transition-colors"
             style={{
               backgroundColor: isHoverBtn ? Colors.primaryHover : Colors.primary,
             }}
@@ -268,9 +285,11 @@ export default function SignupScreen() {
 
           {/* Success UI */}
           {isSuccess && (
-            <p className="text-green-700 text-sm font-medium">
-              Account created successfully ✅
-            </p>
+            <div className="flex items-center gap-2 justify-center">
+              <p className="text-green-700 text-sm font-medium">
+                Account created successfully ✅
+              </p>
+            </div>
           )}
         </form>
 

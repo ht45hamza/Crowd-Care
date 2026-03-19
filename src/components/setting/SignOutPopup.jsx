@@ -16,7 +16,7 @@ export default function SignOutPopup({ isOpen, onClose }) {
 
     const handleSignOut = () => {
         localStorage.removeItem("token");
-        navigate("/login");
+        navigate("/");
         onClose();
     };
 

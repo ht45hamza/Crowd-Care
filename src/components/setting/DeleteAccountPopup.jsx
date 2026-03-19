@@ -20,7 +20,7 @@ export default function DeleteAccountPopup({ isOpen, onClose }) {
             await deleteAccount(userprofile?.data?._id).unwrap();
             alert("Account deleted successfully");
             localStorage.removeItem("token");
-            navigate("/login");
+            navigate("/");
         } catch (err) {
             console.log("Delete account error:", err);
             alert(err?.data?.message || "Failed to delete account");

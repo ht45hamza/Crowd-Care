@@ -19,15 +19,31 @@ export default function OTPverification() {
     const [timer, setTimer] = useState(60);
     const [isHoverResend, setIsHoverResend] = useState(false);
 
-    const [verifyOtp, { isLoading: verifying }] = useVerifyOtpMutation();
-    const [resendOtp, { isLoading: resending }] = useResendOtpMutation();
+    const [verifyOtp, { isLoading: verifying, error: verifyError }] = useVerifyOtpMutation();
+    const [resendOtp, { isLoading: resending, error: resendError }] = useResendOtpMutation();
+
+    const [verifyErrorState, setVerifyErrorState] = useState("");
+    const [resendErrorState, setResendErrorState] = useState("");
+
+    // Sync mutation errors to local state
+    React.useEffect(() => {
+        if (verifyError) {
+            setVerifyErrorState(verifyError?.data?.message || verifyError?.error || "Verification failed");
+        }
+    }, [verifyError]);
+
+    React.useEffect(() => {
+        if (resendError) {
+            setResendErrorState(resendError?.data?.message || "Resend failed");
+        }
+    }, [resendError]);
 
     const otpString = otp.join("");
     const canResend = timer === 0;
 
     useEffect(() => {
         if (!email) {
-            navigate("/");
+            navigate("/signup");
         }
     }, [email, navigate]);
 
@@ -53,32 +69,31 @@ export default function OTPverification() {
 
     const handleResend = async () => {
         try {
+            setResendErrorState("");
             await resendOtp({ email }).unwrap();
-            alert("OTP Resent Successfully ✅");
             resetTimer();
         } catch (err) {
-            alert(err?.data?.message || "Failed to resend OTP");
+            console.log("Resend OTP error:", err);
         }
     };
 
     const handleOtp = async () => {
         if (otpString.length !== 4) {
-            alert("Enter Valid OTP");
+            setVerifyErrorState("Please enter a valid 4-digit OTP");
             return;
         }
 
         try {
+            setVerifyErrorState("");
             await verifyOtp({ email, otp: otpString }).unwrap();
-
-            alert("OTP Verified ✅");
 
             if (flow === "forgot-password") {
                 navigate("/reset", { state: { email } });
             } else {
-                navigate("/login");
+                navigate("/");
             }
         } catch (err) {
-            alert(err?.data?.message || "OTP verification failed");
+            console.log("OTP verification error:", err);
         }
     };
 
@@ -125,6 +140,7 @@ export default function OTPverification() {
                             const newOtp = value.split("").slice(0, 4);
                             while (newOtp.length < 4) newOtp.push("");
                             setOtp(newOtp);
+                            setVerifyErrorState(""); // Clear error on change
                         }}
                         render={({ slots }) => (
                             <>
@@ -146,7 +162,7 @@ export default function OTPverification() {
                     />
                 </div>
 
-                <div className="flex flex-col items-center justify-center mb-6 sm:mb-10 h-auto sm:h-[30px]">
+                <div className="flex flex-col items-center justify-center mb-6 sm:mb-10 h-auto sm:min-h-[30px]">
                     {!canResend ? (
                         <p className="text-[14px] sm:text-[15px] text-[#858585] font-medium text-center">
                             Didn't receive the OTP?
@@ -162,7 +178,7 @@ export default function OTPverification() {
                             type="button"
                             onClick={handleResend}
                             disabled={resending}
-                            className="text-[14px] sm:text-[15px] font-semibold transition-colors"
+                            className="text-[14px] sm:text-[15px] font-semibold transition-colors disabled:opacity-50"
                             style={{ color: isHoverResend ? Colors.linkHover : Colors.link }}
                             onMouseEnter={() => setIsHoverResend(true)}
                             onMouseLeave={() => setIsHoverResend(false)}
@@ -170,10 +186,24 @@ export default function OTPverification() {
                             {resending ? "Sending..." : "Resend OTP"}
                         </button>
                     )}
+                    {resendErrorState && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {resendErrorState}
+                        </p>
+                    )}
                 </div>
 
+                {verifyErrorState && (
+                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-lg animate-in fade-in duration-300 mb-6 w-full max-w-[400px]">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                        <p className="text-red-600 text-sm font-medium leading-none">
+                            {verifyErrorState}
+                        </p>
+                    </div>
+                )}
+
                 <Button
-                    className="w-full h-14 sm:h-16 text-white rounded-xl text-lg sm:text-xl font-medium shadow-none transition-colors"
+                    className="w-full h-14 sm:h-16 text-white rounded-xl text-lg sm:text-xl font-medium shadow-none transition-colors disabled:opacity-60"
                     style={{ backgroundColor: Colors.primary }}
                     onMouseEnter={(e) => (e.target.style.backgroundColor = Colors.primaryHover)}
                     onMouseLeave={(e) => (e.target.style.backgroundColor = Colors.primary)}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bell, ChevronDown, User, Trash2, Menu } from "lucide-react";
 import { Colors } from "@/colors";
-import { useDeleteAccountMutation, useGetUserProfileQuery, useGetImageQuery } from "@/Services/HandleAPI";
+import { useDeleteAccountMutation, useGetUserProfileQuery, useGetImageQuery, useGetNotificationQuery } from "@/Services/HandleAPI";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Header({ onMenuClick }) {
@@ -10,10 +10,13 @@ export default function Header({ onMenuClick }) {
 
   const { data: userprofile, isLoading } = useGetUserProfileQuery();
   const [deleteAccount, { isLoading: deleting }] = useDeleteAccountMutation();
+  const { Notification } = useGetNotificationQuery();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const nmsg = Notification?.message;
+  const ndata = Notification?.data;
   const firstName = userprofile?.data?.firstName;
   const lastName = userprofile?.data?.lastName;
   const userId = userprofile?.data?._id;
@@ -26,7 +29,7 @@ export default function Header({ onMenuClick }) {
     profileImageKey?.startsWith("http") || profileImageKey?.startsWith("blob:")
       ? profileImageKey
       : (typeof imageData === 'string' ? imageData : (imageData?.data || imageData?.url || imageData?.image || ""));
-    
+
 
   const fullName = `${firstName ?? ""} ${lastName ?? ""}`.trim() || "User";
 
@@ -42,26 +45,6 @@ export default function Header({ onMenuClick }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleDeleteAccount = async () => {
-    if (!userId) {
-      alert("User ID not found");
-      return;
-    }
-
-    const confirmDelete = window.confirm("Are you sure you want to delete your account?");
-    if (!confirmDelete) return;
-
-    try {
-      await deleteAccount(userprofile.data._id).unwrap();
-      alert("Account deleted successfully");
-      localStorage.removeItem("token");
-      navigate("/");
-    } catch (err) {
-      console.log("Delete account error:", err);
-      alert(err?.data?.message || "Failed to delete account");
-    }
-  };
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -137,12 +120,14 @@ export default function Header({ onMenuClick }) {
               <div className="h-px bg-gray-100 my-1 w-full"></div>
 
               <button
-                onClick={handleDeleteAccount}
-                disabled={deleting}
-                className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  window.dispatchEvent(new CustomEvent('toggleDeleteAccount', { detail: true }));
+                }}
+                className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
               >
                 <Trash2 size={16} className="mr-3 text-red-500" />
-                {deleting ? "Deleting..." : "Delete account"}
+                Delete account
               </button>
             </div>
           )}

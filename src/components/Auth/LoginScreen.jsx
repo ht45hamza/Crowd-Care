@@ -5,8 +5,8 @@ import { Eye, EyeOff } from "lucide-react";
 import bgImage from "../../assets/startingimage.jpeg";
 import logoImage from "../../assets/Logo.png";
 import { Colors } from '@/colors';
-import { useForgotPasswordMutation, useLoginMutation } from '@/Services/HandleAPI';
-import { useNavigate } from 'react-router-dom';
+import { useLoginMutation } from '@/Services/HandleAPI';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 export default function LoginScreen() {
     const [showPassword, setShowPassword] = useState(false);
@@ -19,8 +19,16 @@ export default function LoginScreen() {
 
     const Navigate = useNavigate();
 
-    const [login, { isLoading, isSuccess, isError, data, error: apiError }] = useLoginMutation()
-    const [forgotPassword, { isLoading: Loading }] = useForgotPasswordMutation()
+    const [login, { isLoading, error: apiError }] = useLoginMutation();
+    // const [forgot, { isLoading: isLoadingForgot, error: forgotError }] = useForgotPasswordMutation();
+    const [apiErrorState, setApiErrorState] = useState("");
+
+    // Sync mutation error to local state
+    React.useEffect(() => {
+        if (apiError) {
+            setApiErrorState(apiError?.data?.message || apiError?.error || "Login failed");
+        }
+    }, [apiError]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -35,9 +43,30 @@ export default function LoginScreen() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    {
+    // const handleforgot = async () => {
+        // if (!email.trim() || !email.includes("@")) {
+        //     setErrors({ ...errors, email: "Please enter a valid email to reset password" });
+        //     return;
+        // }
+
+        // try {
+        //     setApiErrorState("");
+        //     const payload = {
+        //         email: email.trim().toLowerCase()
+        //     }
+        //     await forgot(payload).unwrap();
+        //     console.log("Forgot password OTP sent");
+        //     Navigate("/ForgotPassword", { state: { email: email.trim().toLowerCase() } });
+        // } catch (err) {
+        //     console.log("Forgot password error:", err);
+        //     setApiErrorState(err?.data?.message || "Failed to trigger password reset");
+        // }
+    }
 
     const HandleSubmit = async (e) => {
         e.preventDefault();
+        setApiErrorState(""); 
         console.log("Login clicked")
         const success = validateForm()
         if (!success) {
@@ -54,32 +83,23 @@ export default function LoginScreen() {
             const res = await login(payload).unwrap();
             console.log("🎉 Login Success:", res);
 
-            // check your response shape
             const token = res?.token || res?.access_token || res?.data?.token || res?.data?.access_token;
 
             if (token) {
-            localStorage.setItem("token", token);
-            console.log(token)
-            Navigate("/home");
+                localStorage.setItem("token", token);
+                console.log(token)
+                Navigate("/home");
             } else {
-            console.log("Token not found in response");
+                console.log("Token not found in response");
             }
-            
+
         } catch (err) {
             console.log("🔥 Login Error (Caught in Catch):", err);
         }
     }
 
-    const passwordhandle = async () => {
-        try {
-            await forgotPassword({ email }).unwrap();
-            Navigate("/ForgotPassword", { state: { email } });
-        } catch (err) {
-            alert(err?.data?.message || "Failed to request reset");
-        }
-    }
     const GotoSignup = () => {
-        Navigate("/SignupScreen");
+        Navigate("/signup");
     }
 
 
@@ -116,7 +136,10 @@ export default function LoginScreen() {
                         type="email"
                         placeholder="Enter Email Address"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            setApiErrorState(""); // Clear API error on change
+                        }}
                         className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 sm:h-16 rounded-lg px-4 text-[16px]"
                         style={{ backgroundColor: Colors.inputBg }}
                     />
@@ -128,7 +151,10 @@ export default function LoginScreen() {
                         <Input
                             type={showPassword ? "text" : "password"}
                             value={password}
-                            onChange={(e) => setpassword(e.target.value)}
+                            onChange={(e) => {
+                                setpassword(e.target.value);
+                                setApiErrorState(""); // Clear API error on change
+                            }}
                             placeholder="Enter Password"
                             className="border-gray-200 focus-visible:ring-1 focus-visible:ring-green-700 h-14 sm:h-16 rounded-lg px-4 pr-12 text-[16px]"
                             style={{ backgroundColor: Colors.inputBg }}
@@ -143,26 +169,37 @@ export default function LoginScreen() {
                     </div>
 
                     <div className="flex justify-end w-full">
-                        <a
-                            href="#"
-                            className="text-[14px] sm:text-[15px] font-semibold transition-colors mt-0"
+                        <button
+                            type="button"
+                            className={`text-[14px] sm:text-[15px] font-semibold transition-colors mt-0 $`}
                             style={{ color: isHoverForgot ? Colors.linkHover : Colors.link }}
                             onMouseEnter={() => setIsHoverForgot(true)}
                             onMouseLeave={() => setIsHoverForgot(false)}
-                            onClick={passwordhandle}
+                            onClick={()=>Navigate("/ForgotPassword")}
+                            
                         >
-                            Forgot Password
-                        </a>
+                            Forgot Password?
+                        </button>
                     </div>
 
+                    {apiErrorState && (
+                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-lg animate-in fade-in duration-300">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                            <p className="text-red-600 text-sm font-medium leading-none">
+                                {apiErrorState}
+                            </p>
+                        </div>
+                    )}
+
                     <Button
-                        className="w-full h-14 sm:h-16 mt-6 sm:mt-10 text-white rounded-lg text-lg sm:text-xl font-medium shadow-none transition-colors"
+                        className="w-full h-14 sm:h-16 mt-6 sm:mt-8 text-white rounded-lg text-lg sm:text-xl font-medium shadow-none transition-colors"
                         style={{ backgroundColor: isHoverBtn ? Colors.primaryHover : Colors.primary }}
                         onMouseEnter={() => setIsHoverBtn(true)}
                         onMouseLeave={() => setIsHoverBtn(false)}
                         type="submit"
+                        disabled={isLoading}
                     >
-                        Log in
+                        {isLoading ? "Logging in..." : "Log in"}
                     </Button>
                 </form>
 

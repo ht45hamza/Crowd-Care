@@ -203,7 +203,13 @@ export const api = createApi({
          query : (campaignId) => ({
              url : `/getCampaignDonators/${campaignId}`,
              method : "GET"
-         }) 
+         }), 
+        }),
+        getNotification : builder.query ({
+            query : (g)=> ({
+                url : "/getUserNotifications",
+                method : "GET"
+            })
         })
     }),
 });
@@ -235,5 +241,6 @@ export const {
     useMyDonationHistoryQuery,
     useAllDonationHistoryQuery,
     useUpdateDonationMutation,
-    useGetCampaignDonatorsQuery
+    useGetCampaignDonatorsQuery,
+    useGetNotificationQuery
 } = api;

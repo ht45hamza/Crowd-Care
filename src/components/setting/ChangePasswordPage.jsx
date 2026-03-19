@@ -19,7 +19,7 @@ export default function ChangePasswordPage() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const [changePassword, { isLoading: Changing }] = useChangePasswordPasswordMutation();
+    const [changePassword, { isLoading: Changing }] = useChangePasswordMutation();
 
     const handleChange = (e) => {
         const { name, value } = e.target;

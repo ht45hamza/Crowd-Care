@@ -11,7 +11,7 @@ export function PasswordPopupComponent({ onClose }) {
     const Navigate = useNavigate();
 
     const success = () => {
-        Navigate("/login")
+        Navigate("/")
     }
 
     return (
