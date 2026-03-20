@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCreateReportMutation } from '../../Services/HandleAPI';
+import toast from "react-hot-toast";
 
 const REPORT_REASONING = [
     "Identity fraud",
@@ -28,11 +29,14 @@ export default function ReportPopup({ isOpen, onClose, campaignId }) {
                 campaignId,
                 reason: selectedReason,
             }).unwrap();
-            alert("Report submitted successfully!");
+            toast.success("Report submitted successfully!", {
+                duration: 3000,
+                position: "bottom-center"
+            });
             onClose();
         } catch (error) {
             const errorMsg = error?.data?.message || error?.message || "Something went wrong.";
-            alert(`Failed to submit report: ${errorMsg}`);
+            toast.error(`Failed to submit report: ${errorMsg}`);
         }
     };
 

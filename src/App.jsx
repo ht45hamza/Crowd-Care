@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import AppRoutes from "./routes";
 import SignOutPopup from "./components/setting/SignOutPopup";
 import DeleteAccountPopup from "./components/setting/DeleteAccountPopup";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
@@ -22,6 +23,7 @@ function App() {
 
   return (
     <>
+      <Toaster />
       <AppRoutes />
 
       {/* Global Modals - Rendered outside the Sidebar for full-screen width */}

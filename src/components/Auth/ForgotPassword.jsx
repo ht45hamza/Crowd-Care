@@ -6,6 +6,7 @@ import logoImage from "../../assets/Logo.png";
 import { Colors } from '@/colors';
 import { useNavigate } from 'react-router-dom';
 import { useForgotPasswordMutation} from '@/Services/HandleAPI';
+import { forgotPasswordSchema } from '@/utils/validationSchemas';
 
 export default function ForgotPassword() {
     
@@ -24,8 +25,10 @@ export default function ForgotPassword() {
     }, [apiError]);
 
     const HandleRequest = async () => {
-        if (!email.trim()) {
-            setApiErrorState("Email is required");
+        try {
+            forgotPasswordSchema.validateSync({ email }, { abortEarly: false });
+        } catch (validationErr) {
+            setApiErrorState(validationErr.inner[0]?.message || "Please enter a valid email");
             return;
         }
          try {

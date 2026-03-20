@@ -3,15 +3,17 @@ import { Colors } from '@/colors';
 import Sidebar from '../Home/Sidebar';
 import Header from '../Home/Header';
 import { Button } from '@/components/ui/button';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import { Stepper, Step } from 'react-form-stepper';
 import { Check } from 'lucide-react';
 import { useUploadImageMutation, useCreateCampaignMutation } from '@/Services/HandleAPI';
+import { useDispatch, useSelector } from 'react-redux';           
+import { resetCampaignData } from '@/Services/campaignSlice';
 
 export default function CompaignReview() {
     const Navigate = useNavigate();
-    const location = useLocation();
-    const compData = location.state || {};
+    const dispatch = useDispatch();
+    const compData = useSelector((state) => state.campaign); 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [createCompaign, { isLoading: Creating }] = useCreateCampaignMutation();
     const [uploadImage] = useUploadImageMutation();
@@ -70,13 +72,14 @@ export default function CompaignReview() {
                 title : compData.title,
                 description : compData.description,
                 amount : Number(compData.amount),
-                duration : compData.duration || [],
+                duration : [compData.durationFrom, compData.durationTo],
                 category : categoryIdentifier,
                 location : compData.city ? `${compData.location}, ${compData.city}` : compData.location,
                 images : uploadedImageNames
             };
 
             await createCompaign(payload).unwrap();
+            dispatch(resetCampaignData());
             Navigate("/home");
         } catch (err) {
             if (err.data) {
@@ -191,7 +194,9 @@ export default function CompaignReview() {
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                                         <span className="w-full sm:w-45 text-gray-400 font-medium text-[14px] sm:text-[15px] shrink-0">Duration Date</span>
                                         <span className="text-black font-semibold sm:font-medium text-[14px] sm:text-[15px] wrap-break-word">
-                                            {compData.duration ? `${compData.duration[0]} to ${compData.duration[1]}` : "-"}
+                                            {compData.durationFrom && compData.durationTo
+                                            ? `${compData.durationFrom} to ${compData.durationTo}`
+                                            : "-"}
                                         </span>
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:items-start pt-1 gap-2 sm:gap-4">

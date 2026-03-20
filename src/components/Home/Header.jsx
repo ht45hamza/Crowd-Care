@@ -3,6 +3,7 @@ import { Bell, ChevronDown, User, Trash2, Menu } from "lucide-react";
 import { Colors } from "@/colors";
 import { useDeleteAccountMutation, useGetUserProfileQuery, useGetImageQuery, useGetNotificationQuery } from "@/Services/HandleAPI";
 import { useNavigate, useLocation } from "react-router-dom";
+import NotificationPopup from "./NotificationPopup";
 
 export default function Header({ onMenuClick }) {
   const navigate = useNavigate();
@@ -10,9 +11,10 @@ export default function Header({ onMenuClick }) {
 
   const { data: userprofile, isLoading } = useGetUserProfileQuery();
   const [deleteAccount, { isLoading: deleting }] = useDeleteAccountMutation();
-  const { Notification } = useGetNotificationQuery();
+  const { data: Notification } = useGetNotificationQuery();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const nmsg = Notification?.message;
@@ -133,9 +135,20 @@ export default function Header({ onMenuClick }) {
           )}
         </div>
 
-        <button className="flex items-center justify-center w-10 sm:w-11.5 h-10 sm:h-11.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors bg-white">
+        <button
+          onClick={() => setIsNotificationOpen(true)}
+          className="relative flex items-center justify-center w-10 sm:w-11.5 h-10 sm:h-11.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors bg-white focus:outline-none"
+        >
           <Bell size={20} strokeWidth={1.5} />
+          {ndata?.length > 0 && ndata?.some(n => !n.isRead) && (
+            <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          )}
         </button>
+
+        <NotificationPopup
+          isOpen={isNotificationOpen}
+          onClose={() => setIsNotificationOpen(false)}
+        />
       </div>
     </header>
   );

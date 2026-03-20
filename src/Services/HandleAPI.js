@@ -206,7 +206,7 @@ export const api = createApi({
          }), 
         }),
         getNotification : builder.query ({
-            query : (g)=> ({
+            query : ()=> ({
                 url : "/getUserNotifications",
                 method : "GET"
             })

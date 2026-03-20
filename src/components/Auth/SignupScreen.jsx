@@ -7,6 +7,7 @@ import logoImage from "../../assets/Logo.png";
 import { Colors } from "@/colors";
 import { useSignupMutation } from "@/Services/HandleAPI";
 import { useNavigate } from "react-router-dom";
+import { signupSchema } from "@/utils/validationSchemas";
 
 
 export default function SignupScreen() {
@@ -58,25 +59,21 @@ export default function SignupScreen() {
   }, [isLoading, isSuccess, isError, data, apiError]);
 
   const validateForm = () => {
-    const newErrors = {};
-
-    if (!firstName.trim()) newErrors.firstName = "First name is required";
-    if (!secondName.trim()) newErrors.secondName = "Second name is required";
-
-    if (!email.trim()) newErrors.email = "Email is required";
-    else if (!email.includes("@")) newErrors.email = "Incorrect email format";
-
-    if (!password) newErrors.password = "Password is required";
-    else if (password.length < 8)
-      newErrors.password = "Password must be at least 8 characters";
-
-    if (!confirmPassword)
-      newErrors.confirmPassword = "Confirm password is required";
-    else if (password !== confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    try {
+      signupSchema.validateSync(
+        { firstName, secondName, email, password, confirmPassword },
+        { abortEarly: false }
+      );
+      setErrors({});
+      return true;
+    } catch (err) {
+      const newErrors = {};
+      err.inner.forEach((e) => {
+        if (!newErrors[e.path]) newErrors[e.path] = e.message;
+      });
+      setErrors(newErrors);
+      return false;
+    }
   };
 
   const handleInputChange = (setter) => (e) => {

@@ -12,6 +12,8 @@ import { Pencil } from "lucide-react";
 import Sidebar from "../Home/Sidebar";
 import Header from "../Home/Header";
 import { useNavigate } from "react-router-dom";
+import { editProfileSchema } from "@/utils/validationSchemas";
+import toast from "react-hot-toast";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -43,6 +45,8 @@ export default function EditProfile() {
     gender: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (userprofile?.data && !hasInitialized.current) {
       const data = userprofile.data;
@@ -72,6 +76,10 @@ export default function EditProfile() {
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -89,6 +97,18 @@ export default function EditProfile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      editProfileSchema.validateSync(formData, { abortEarly: false });
+      setErrors({});
+    } catch (validationErr) {
+      const newErrors = {};
+      validationErr.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
 
     let uploadedImageName = formData.profileImage;
 
@@ -140,11 +160,11 @@ export default function EditProfile() {
 
       await updateUserProfile(payload).unwrap();
 
-      alert("Profile Updated Successfully!");
+      toast.success("Profile updated successfully!");
       navigate("/profile");
     } catch (err) {
-      console.error("Profile update failed:", err);
-      alert(err?.data?.message || err?.message || "Failed to update profile.");
+      console.error("Profile update error:", err);
+      toast.error(err?.data?.message || "Failed to update profile.");
     }
   };
 
@@ -255,6 +275,7 @@ export default function EditProfile() {
                     onChange={handleChange}
                     className="h-16.25 border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-2xl px-6 text-[15px] font-medium text-black focus-visible:ring-1 focus-visible:ring-gray-300 transition-colors bg-white w-full"
                   />
+                  {errors.firstName && <p className="text-red-500 text-xs mt-1 ml-2">{errors.firstName}</p>}
                 </div>
 
                 <div>
@@ -268,6 +289,7 @@ export default function EditProfile() {
                     onChange={handleChange}
                     className="h-16.25 border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-2xl px-6 text-[15px] font-medium text-black focus-visible:ring-1 focus-visible:ring-gray-300 transition-colors bg-white w-full"
                   />
+                  {errors.lastName && <p className="text-red-500 text-xs mt-1 ml-2">{errors.lastName}</p>}
                 </div>
 
                 <div>

@@ -7,6 +7,7 @@ import logoImage from "../../assets/Logo.png";
 import { Colors } from '@/colors';
 import { useLoginMutation } from '@/Services/HandleAPI';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { loginSchema } from '@/utils/validationSchemas';
 
 export default function LoginScreen() {
     const [showPassword, setShowPassword] = useState(false);
@@ -31,17 +32,18 @@ export default function LoginScreen() {
     }, [apiError]);
 
     const validateForm = () => {
-        const newErrors = {};
-
-        if (!email.trim()) newErrors.email = "Email is required";
-        else if (!email.includes("@")) newErrors.email = "Incorrect email format";
-
-        if (!password) newErrors.password = "Password is required";
-        else if (password.length < 8)
-            newErrors.password = "Password must be at least 8 characters";
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        try {
+            loginSchema.validateSync({ email, password }, { abortEarly: false });
+            setErrors({});
+            return true;
+        } catch (err) {
+            const newErrors = {};
+            err.inner.forEach((e) => {
+                if (!newErrors[e.path]) newErrors[e.path] = e.message;
+            });
+            setErrors(newErrors);
+            return false;
+        }
     };
     {
     // const handleforgot = async () => {

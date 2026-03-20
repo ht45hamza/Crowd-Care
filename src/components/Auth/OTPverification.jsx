@@ -7,6 +7,7 @@ import { Colors } from '@/colors';
 import { OTPInput } from 'input-otp';
 import { useVerifyOtpMutation, useResendOtpMutation } from '@/Services/HandleAPI';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { otpSchema } from '@/utils/validationSchemas';
 
 export default function OTPverification() {
     const navigate = useNavigate();
@@ -78,8 +79,10 @@ export default function OTPverification() {
     };
 
     const handleOtp = async () => {
-        if (otpString.length !== 4) {
-            setVerifyErrorState("Please enter a valid 4-digit OTP");
+        try {
+            otpSchema.validateSync({ otp: otpString }, { abortEarly: false });
+        } catch (validationErr) {
+            setVerifyErrorState(validationErr.inner[0]?.message || "Please enter a valid 4-digit OTP");
             return;
         }
 

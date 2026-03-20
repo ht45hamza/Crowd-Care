@@ -7,6 +7,7 @@ import logoImage from "../../assets/Logo.png";
 import { Colors } from "@/colors";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useResetPasswordMutation } from "@/Services/HandleAPI";
+import { resetPasswordSchema } from "@/utils/validationSchemas";
 
 export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,19 +30,14 @@ export default function ResetPassword() {
     try {
       setError("");
 
-      if (!newPassword || !confirmPassword) {
-        setError("Please fill all fields.");
+      try {
+        resetPasswordSchema.validateSync(
+          { newPassword, confirmPassword },
+          { abortEarly: false }
+        );
+      } catch (validationErr) {
+        setError(validationErr.inner[0]?.message || "Please check your input.");
         return;
-      }
-
-      if (newPassword.length < 8) {
-        setError("Password must be at least 8 characters.");
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        setError("Passwords do not match.");
-        return
       }
 
       const payload = {
