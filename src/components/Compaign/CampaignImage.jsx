@@ -2,10 +2,15 @@ import React from "react";
 import { useGetImageQuery } from "@/Services/HandleAPI";
 
 const CampaignImage = ({ imageKey, alt, fallbackImage, className }) => {
-  const isLocalAsset = typeof imageKey === "string" && (imageKey.startsWith("/src") || imageKey.startsWith("@/"));
   const isUrl =
     typeof imageKey === "string" &&
-    (imageKey.startsWith("http") || imageKey.startsWith("blob:") || imageKey.startsWith("data:") || isLocalAsset);
+    (
+      imageKey.startsWith("http") ||
+      imageKey.startsWith("blob:") ||
+      imageKey.startsWith("data:") ||
+      imageKey.startsWith("/src") ||
+      imageKey.startsWith("@/")
+    );
 
   const { data: imageData, isLoading } = useGetImageQuery(imageKey, {
     skip: !imageKey || isUrl || imageKey === "null" || typeof imageKey !== "string",

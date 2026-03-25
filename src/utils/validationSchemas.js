@@ -82,10 +82,17 @@ export const editProfileSchema = yup.object().shape({
     .string()
     .trim()
     .required("Last name is required"),
+  countryCode: yup
+    .string()
+    .trim()
+    .required("Country code is required")
+    .matches(/^\+/, "Country code must start with '+'")
+    .matches(/^\+[0-9]+$/, "Country code must contain digits after '+'"),
   phone: yup
     .string()
-    .matches(/^[0-9]*$/, "Phone number must contain only digits")
-    .nullable(),
+    .trim()
+    .required("Phone number is required")
+    .matches(/^[1-9][0-9]*$/, "Phone number must not start with zero and contain only digits"),
 });
 
 // ─── Campaign Schemas ───────────────────────────────────────

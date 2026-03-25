@@ -24,6 +24,7 @@ export default function Profile() {
   const email = data.email || "user@example.com";
   const address = data.address || "Location not set";
   const phone = data.phone || "";
+  const countryCode = data.countryCode || "+92";
   const dob = data.dob || "";
   const aboutMe =
     data.aboutMe || "Lorem Ipsum is simply dummy text of the printing and typesetting industry.";
@@ -36,7 +37,12 @@ export default function Profile() {
   const generate = data.totalGeneratedAmount || 0;
   const profileImageKey = profileImage;
   const { data: imageData } = useGetImageQuery(profileImageKey, {
-    skip: !profileImageKey || profileImageKey.startsWith("http") || profileImageKey.startsWith("blob:"),
+    skip:
+      !profileImageKey ||
+      profileImageKey.startsWith("http") ||
+      profileImageKey.startsWith("blob:") ||
+      profileImageKey.startsWith("data:") ||
+      profileImageKey === "null",
   });
 
   const displayImage =
@@ -122,7 +128,7 @@ export default function Profile() {
                 <div>
                   <label className="block text-sm font-semibold text-[#333] mb-3">Phone</label>
                   <div className="bg-[#F3F4F6] text-[#444] h-14 rounded-2xl flex items-center px-5 font-medium text-[15px]">
-                    {phone || "(406) 555-0120"}
+                    {phone ? `${countryCode} ${phone}` : "(406) 555-0120"}
                   </div>
                 </div>
 

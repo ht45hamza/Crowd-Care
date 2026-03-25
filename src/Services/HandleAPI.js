@@ -14,7 +14,7 @@ export const api = createApi({
             return headers;
         },
     }),
-    tagTypes: ["User"],
+    tagTypes: ["User", "Image"],
     endpoints: (builder) => ({
 
         signup: builder.mutation({
@@ -75,8 +75,8 @@ export const api = createApi({
 
         updateUserProfile: builder.mutation({
             query: (body) => ({
-                url: "/editProfile", 
-                method: "PATCH", 
+                url: "/editProfile",
+                method: "PATCH",
                 body,
             }),
             invalidatesTags: ["User"],
@@ -85,20 +85,20 @@ export const api = createApi({
             query: (id) => ({
                 url: `/deleteAccount`,
                 method: "DELETE",
-                body: { id } 
+                body: { id }
             }),
         }),
-        changePassword : builder.mutation ({
-            query : (body) => ({
-                url : "/changePassword",
-                method : "PATCH",
+        changePassword: builder.mutation({
+            query: (body) => ({
+                url: "/changePassword",
+                method: "PATCH",
                 body
             }),
         }),
-        uploadImage : builder.mutation ({
-            query : (body) =>({
-                url : "/uploadImage",
-                method : "POST",
+        uploadImage: builder.mutation({
+            query: (body) => ({
+                url: "/uploadImage",
+                method: "POST",
                 body
             }),
         }),
@@ -108,37 +108,40 @@ export const api = createApi({
                 method: "GET",
                 params: { key },
             }),
+            // Cache image URLs for 10 minutes — prevents re-fetching same image key on every mount
+            keepUnusedDataFor: 600,
+            providesTags: (result, error, key) => [{ type: "Image", id: key }],
         }),
-        createCampaign : builder.mutation ({
-            query : (body)=>({
-                url : "/createCampaign",
-                method : "POST",
+        createCampaign: builder.mutation({
+            query: (body) => ({
+                url: "/createCampaign",
+                method: "POST",
                 body
             }),
         }),
-        getPopularCampaigns : builder.query ({
-            query : ()=>({
-                url : "/getPopularCampaigns",
-                method : "GET"
+        getPopularCampaigns: builder.query({
+            query: () => ({
+                url: "/getPopularCampaigns",
+                method: "GET"
             }),
         }),
-        getRecentCampaigns : builder.query ({
-            query : ()=>({
-                url : "/getRecentCampaigns",
-                method : "GET"
+        getRecentCampaigns: builder.query({
+            query: () => ({
+                url: "/getRecentCampaigns",
+                method: "GET"
             }),
         }),
-        createCategory : builder.mutation ({
-            query : (body) => ({
-                url : "/createCategory",
-                method : "POST",
+        createCategory: builder.mutation({
+            query: (body) => ({
+                url: "/createCategory",
+                method: "POST",
                 body
             }),
         }),
-        getCategory : builder.query ({
-            query : ()=>({
-                url : "/getCategories",
-                method : "GET"
+        getCategory: builder.query({
+            query: () => ({
+                url: "/getCategories",
+                method: "GET"
             }),
         }),
         updateCategory: builder.mutation({
@@ -148,67 +151,76 @@ export const api = createApi({
                 body
             }),
         }),
-        getAllCampaigns : builder.query ({
-            query : ()=>({
-                url : "getAllCampaigns",
-                method : "GET"
+        getAllCampaigns: builder.query({
+            query: () => ({
+                url: "getAllCampaigns",
+                method: "GET"
             }),
         }),
-        getAuthCampaigns : builder.query ({
-            query : ()=> ({
-                url : "/getAuthUserCampaign",
-                method : "GET"
+        getAuthCampaigns: builder.query({
+            query: () => ({
+                url: "/getAuthUserCampaign",
+                method: "GET"
             }),
         }),
-        createReport : builder.mutation ({
-            query : (body)=>({
-                url : "/createReport",
-                method : "POST",
+        createReport: builder.mutation({
+            query: (body) => ({
+                url: "/createReport",
+                method: "POST",
                 body
             }),
         }),
-        getReports : builder.query ({
-            query : ()=>({
+        getReports: builder.query({
+            query: () => ({
                 url: "/getReports",
                 method: "GET"
             }),
         }),
-        donate : builder.mutation ({
-            query : (body) => ({
-                url : "/donate",
-                method : "POST",
+        donate: builder.mutation({
+            query: (body) => ({
+                url: "/donate",
+                method: "POST",
                 body
             }),
         }),
-        myDonationHistory : builder.query ({
-            query : ()=>({
-                url : "/myDonationHistory",
-                method : "get",
+        myDonationHistory: builder.query({
+            query: () => ({
+                url: "/myDonationHistory",
+                method: "get",
             }),
         }),
-        allDonationHistory : builder.query ({
-            query : () => ({
-                url : "allDonationHistory",
-                method : "GET"
+        allDonationHistory: builder.query({
+            query: () => ({
+                url: "allDonationHistory",
+                method: "GET"
             }),
         }),
-       updateDonation : builder.mutation ({
-        query : (body) => ({
-            url : "/updateDonationStatus",
-            method : "PATCH",
-            body
+        updateDonation: builder.mutation({
+            query: (body) => ({
+                url: "/updateDonationStatus",
+                method: "PATCH",
+                body
             }),
-       }), 
-        getCampaignDonators : builder.query ({
-         query : (campaignId) => ({
-             url : `/getCampaignDonators/${campaignId}`,
-             method : "GET"
-         }), 
         }),
-        getNotification : builder.query ({
-            query : ()=> ({
-                url : "/getUserNotifications",
-                method : "GET"
+        getCampaignDonators: builder.query({
+            query: (campaignId) => ({
+                url: `/getCampaignDonators/${campaignId}`,
+                method: "GET"
+            }),
+        }),
+        getNotification: builder.query({
+            query: () => ({
+                url: "/getUserNotifications",
+                method: "GET"
+            }),
+            // Cache for 2 minutes to avoid hammering the server
+            keepUnusedDataFor: 120,
+        }),
+        socialsignup: builder.mutation({
+            query: (body) => ({
+                url: "/socialSignup",
+                method: "POST",
+                body
             })
         })
     }),
@@ -242,5 +254,6 @@ export const {
     useAllDonationHistoryQuery,
     useUpdateDonationMutation,
     useGetCampaignDonatorsQuery,
-    useGetNotificationQuery
+    useGetNotificationQuery,
+    useSocialsignupMutation
 } = api;

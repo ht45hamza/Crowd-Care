@@ -178,7 +178,12 @@ export default function EditProfile() {
 
   const profileImageKeyFromState = formData.profileImage;
   const { data: serverImageData } = useGetImageQuery(profileImageKeyFromState, {
-    skip: !profileImageKeyFromState || profileImageKeyFromState.startsWith("http") || profileImageKeyFromState.startsWith("blob:"),
+    skip:
+      !profileImageKeyFromState ||
+      profileImageKeyFromState.startsWith("http") ||
+      profileImageKeyFromState.startsWith("blob:") ||
+      profileImageKeyFromState.startsWith("data:") ||
+      profileImageKeyFromState === "null",
   });
 
   const resolvedProfileImage = profileImageKeyFromState?.startsWith("http") || profileImageKeyFromState?.startsWith("blob:")
@@ -309,27 +314,35 @@ export default function EditProfile() {
                   <label className="block text-sm font-medium text-black mb-3">
                     Phone Number
                   </label>
-                  <div className="flex gap-3">
-                    <div className="w-24 sm:w-28 shrink-0">
-                      <Input
-                        type="text"
-                        name="countryCode"
-                        placeholder="+92"
-                        value={formData.countryCode}
-                        onChange={handleChange}
-                        className="h-14 sm:h-16.25 border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-2xl px-4 text-center text-[14px] sm:text-[15px] font-medium text-black focus-visible:ring-1 focus-visible:ring-gray-300 transition-colors bg-white w-full"
-                      />
+                  <div className="flex flex-col gap-1">
+                    <div className="flex gap-3">
+                      <div className="w-24 sm:w-28 shrink-0">
+                        <Input
+                          type="text"
+                          name="countryCode"
+                          placeholder="+92"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className={`h-14 sm:h-16.25 border ${errors.countryCode ? "border-red-500" : "border-gray-100"} shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-2xl px-4 text-center text-[14px] sm:text-[15px] font-medium text-black focus-visible:ring-1 focus-visible:ring-gray-300 transition-colors bg-white w-full`}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          name="phone"
+                          placeholder="Phone Number"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className={`h-14 sm:h-16.25 border ${errors.phone ? "border-red-500" : "border-gray-100"} shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-2xl px-6 text-[14px] sm:text-[15px] font-medium text-black focus-visible:ring-1 focus-visible:ring-gray-300 transition-colors bg-white w-full`}
+                        />
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        name="phone"
-                        placeholder="Phone Number"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="h-14 sm:h-16.25 border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-2xl px-6 text-[14px] sm:text-[15px] font-medium text-black focus-visible:ring-1 focus-visible:ring-gray-300 transition-colors bg-white w-full"
-                      />
-                    </div>
+                    {errors.countryCode && (
+                      <p className="text-red-500 text-xs mt-1 ml-2">{errors.countryCode}</p>
+                    )}
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1 ml-2">{errors.phone}</p>
+                    )}
                   </div>
                 </div>
 

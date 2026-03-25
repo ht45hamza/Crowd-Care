@@ -5,7 +5,16 @@ import { useGetNotificationQuery } from '../../Services/HandleAPI';
 import { Colors } from '@/colors';
 
 export default function NotificationPopup({ isOpen, onClose }) {
-    const { data: Notification, isLoading, isError, refetch } = useGetNotificationQuery();
+    const { data: Notification, isLoading, isError, error, refetch, isFetching } = useGetNotificationQuery();
+
+    // Debug logs moved from HandleAPI.js
+    if (Notification) {
+        console.log("📬 [API Debug] Raw getNotification response:", Notification);
+    }
+    if (isError) {
+        console.error("💥 [API Debug] getNotification error:", error);
+        console.error("📦 [Notification Debug] Error Detail:", error?.data || error?.status || error?.error);
+    }
 
     const ndata = Notification?.data || [];
     const nmsg = Notification?.message;

@@ -19,12 +19,20 @@ export default function Header({ onMenuClick }) {
 
   const nmsg = Notification?.message;
   const ndata = Notification?.data;
+
+  // Debug — remove once notifications are confirmed working
+  console.log("bell [Header Notification Debug] ndata:", ndata, "| nmsg:", nmsg);
   const firstName = userprofile?.data?.firstName;
   const lastName = userprofile?.data?.lastName;
   const userId = userprofile?.data?._id;
   const profileImageKey = userprofile?.data?.profileImage;
   const { data: imageData } = useGetImageQuery(profileImageKey, {
-    skip: !profileImageKey || profileImageKey.startsWith("http") || profileImageKey.startsWith("blob:"),
+    skip:
+      !profileImageKey ||
+      profileImageKey.startsWith("http") ||
+      profileImageKey.startsWith("blob:") ||
+      profileImageKey.startsWith("data:") ||
+      profileImageKey === "null",
   });
 
   const displayImage =
